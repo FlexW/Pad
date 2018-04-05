@@ -24,6 +24,15 @@ typedef struct _PadCanvasClass {
 
 } PadCanvasClass;
 
+/*
+ * The area that will be drawn on the screen in world coordinates.
+ */
+typedef struct _PadCanvasDrawArea {
+
+  gdouble x, y, width, height;
+
+} PadCanvasDrawArea;
+
 // GType           goo_canvas_get_type	    (void) G_GNUC_CONST;
 
 GtkWidget *pad_canvas_new(void);

@@ -43,7 +43,8 @@ PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item) {
   return item;
 }
 
-void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr) {
+void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr,
+                          PadCanvasDrawArea *draw_area) {
   PadCanvasItemClass *klass;
 
   g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
@@ -51,5 +52,7 @@ void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr) {
   klass = PAD_CANVAS_ITEM_GET_CLASS(self);
   g_return_if_fail(klass->draw != NULL);
 
-  klass->draw(self, cr);
+  //if (self->need_update) {
+    klass->draw(self, cr, draw_area);
+    //}
 }

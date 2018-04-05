@@ -6,7 +6,10 @@
 #define __PAD_CANVAS_ITEM_H__
 
 #include <gtk.h>
+
 //#include "pad-canvas.h"
+
+typedef struct _PadCanvasDrawArea PadCanvasDrawArea;
 
 G_BEGIN_DECLS
 
@@ -14,10 +17,17 @@ G_BEGIN_DECLS
 G_DECLARE_DERIVABLE_TYPE(PadCanvasItem, pad_canvas_item, PAD, CANVAS_ITEM,
                          GObject);
 
+/*typedef struct _PadCanvasItem {
+
+  If this is set to FALSE, the drawing method of the item will not be called.
+  gboolean need_update;
+
+} PadCanvasItem;
+*/
 typedef struct _PadCanvasItemClass {
   GObjectClass parent_class;
 
-  void (*draw) (PadCanvasItem *self, cairo_t *cr);
+  void (*draw)(PadCanvasItem *self, cairo_t *cr, PadCanvasDrawArea *draw_area);
 
   gpointer padding[30];
 
@@ -25,7 +35,8 @@ typedef struct _PadCanvasItemClass {
 
 PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item);
 
-void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr);
+void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr,
+                          PadCanvasDrawArea *draw_area);
 
 G_END_DECLS
 

@@ -25,7 +25,8 @@ PadCanvasItem *pad_canvas_item_polyline_new(PadCanvasItem *parent_item);
 void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
                                         gdouble y, gdouble line_width);
 
-void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr);
+void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr,
+                                   PadCanvasDrawArea *draw_area);
 
 G_END_DECLS
 

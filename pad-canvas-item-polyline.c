@@ -84,7 +84,8 @@ void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
   priv->points_list = g_list_append(priv->points_list, point);
 }
 
-void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr) {
+void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr,
+                                   PadCanvasDrawArea *draw_area) {
   PadCanvasItemPolylinePrivate *priv =
       pad_canvas_item_polyline_get_instance_private(
           PAD_CANVAS_ITEM_POLYLINE(self));
@@ -102,8 +103,8 @@ void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr) {
   GList *l = priv->points_list;
   l = l->next;
   for (; l != NULL; l = l->next) {
-    PolylinePoint *point1 = (PolylinePoint*)l->prev->data;
-    PolylinePoint *point2 = (PolylinePoint*)l->data;
+    PolylinePoint *point1 = (PolylinePoint *)l->prev->data;
+    PolylinePoint *point2 = (PolylinePoint *)l->data;
 
     cairo_set_line_width(cr, point1->line_width);
     cairo_line_to(cr, point1->x, point1->y);

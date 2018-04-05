@@ -103,7 +103,8 @@ PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
   return item;
 }
 
-void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr) {
+void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr,
+                              PadCanvasDrawArea *draw_area) {
   PadCanvasItemPdfPrivate *priv;
   PopplerPage *pdf_page;
 
