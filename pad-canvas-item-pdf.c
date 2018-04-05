@@ -100,6 +100,8 @@ PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
   }
   va_end(var_args);
 
+  PAD_CANVAS_ITEM(item)->need_update = TRUE;
+
   return item;
 }
 
