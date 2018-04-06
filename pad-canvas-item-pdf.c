@@ -100,7 +100,7 @@ PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
   }
   va_end(var_args);
 
-  PAD_CANVAS_ITEM(item)->need_update = TRUE;
+  //PAD_CANVAS_ITEM(item)->need_update = TRUE;
 
   return item;
 }
@@ -118,6 +118,20 @@ void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr,
   }
 
   cairo_save(cr);
+
+  cairo_translate(cr, self->world_x, self->world_y);
+
+  cairo_new_path(cr);
+  cairo_move_to(cr, 0, 0);
+  cairo_line_to(cr, priv->image_data_width, 0);
+  cairo_line_to(cr, priv->image_data_width, priv->image_data_height);
+  cairo_line_to(cr, 0, priv->image_data_height);
+  cairo_close_path(cr);
+  cairo_clip(cr);
+
+  cairo_set_source_rgb(cr, 1, 1, 1);
+
+  cairo_paint(cr);
 
   poppler_page_render(pdf_page, cr);
 

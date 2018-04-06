@@ -1,7 +1,7 @@
 #include <poppler.h>
 
-#include "pad-canvas.h"
 #include "pad-canvas-item-pdf.h"
+#include "pad-canvas.h"
 //#include "pad-canvas-item-group.h"
 //#include "pad-canvas-item-polyline.h"
 
@@ -63,9 +63,7 @@ static void smooth_zoom(PadCanvas *canvas, zoom_direction zdirection) {
   // vadjustment, NULL);
 }
 
-static PopplerDocument*
-open_pdf_file(gchar *filename)
-{
+static PopplerDocument *open_pdf_file(gchar *filename) {
   char *contents;
   gsize length;
   GError *error = NULL;
@@ -93,14 +91,20 @@ static void set_pdf_page() {
 
   if (doc == NULL && root_item != NULL) {
     gdouble width, height;
-    doc = open_pdf_file("/home/human/Documents/Blatt_07.pdf");
+    doc = open_pdf_file("/home/human/Uni/Analysis1/ana1.pdf");
     if (doc == NULL) {
       return;
     }
-    page = poppler_document_get_page(doc, 0);
-    poppler_page_get_size(page, &width, &height);
-    item_pdf = pad_canvas_item_pdf_new(root_item, page, NULL);
-    pad_canvas_set_world_bounds(PAD_CANVAS(canvas), width, height);
+
+    int npages = poppler_document_get_n_pages(doc);
+    for (int i = 0; i < npages; i++) {
+      page = poppler_document_get_page(doc, i);
+      poppler_page_get_size(page, &width, &height);
+      item_pdf = pad_canvas_item_pdf_new(root_item, page, "world-y",
+                                         (height + 10) * i, NULL);
+    }
+    pad_canvas_set_world_bounds(PAD_CANVAS(canvas), width,
+                                (height + 10) * npages);
   }
 }
 
@@ -255,6 +259,7 @@ static void build_control_bar(GtkBox *pbox) {
 
 static void activate(GtkApplication *app, gpointer user_data) {
   GtkWidget *window, *mbox, *scrolled_win;
+  GdkWindow *canvas_window;
 
   window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), "pad_test_driver_canvas");
@@ -271,7 +276,7 @@ static void activate(GtkApplication *app, gpointer user_data) {
   gtk_box_pack_start(GTK_BOX(mbox), scrolled_win, TRUE, TRUE, 1);
 
   canvas = pad_canvas_new();
-  root_item = pad_canvas_get_root_item(PAD_CANVAS(canvas));
+  g_object_get(canvas, "root-item", &root_item, NULL);
   gtk_container_add(GTK_CONTAINER(scrolled_win), canvas);
   g_signal_connect(scrolled_win, "motion-notify-event",
                    G_CALLBACK(on_canvas_motion_notify_event), NULL);
@@ -288,8 +293,8 @@ static void activate(GtkApplication *app, gpointer user_data) {
   set_pdf_page();
 
   gtk_widget_show_all(window);
-  gdk_window_set_event_compression(pad_canvas_get_window(PAD_CANVAS(canvas)),
-                                   FALSE);
+  g_object_get(canvas, "canvas-window", &canvas_window, NULL);
+  gdk_window_set_event_compression(canvas_window, FALSE);
 }
 
 int main(int argc, char *argv[]) {

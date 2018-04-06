@@ -57,7 +57,7 @@ PadCanvasItem *pad_canvas_item_group_new(PadCanvasItem *parent_item) {
   PadCanvasItem *canvas_item_group =
       g_object_new(PAD_TYPE_CANVAS_ITEM_GROUP, NULL);
 
-  canvas_item_group->need_update = TRUE;
+  //canvas_item_group->need_update = TRUE;
 
   return canvas_item_group;
 }
@@ -69,7 +69,7 @@ void pad_canvas_item_group_add_item(PadCanvasItemGroup *self,
 
   priv->item_list = g_list_append(priv->item_list, item);
 
-  PAD_CANVAS_ITEM(self)->need_update = TRUE;
+  //PAD_CANVAS_ITEM(self)->need_update = TRUE;
 }
 
 void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr,

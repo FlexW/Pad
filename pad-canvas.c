@@ -62,11 +62,10 @@ enum {
   PROP_HSCROLL_POLICY,
   PROP_VSCROLL_POLICY,
   PROP_WORLD_SCALE,
+  PROP_ROOT_ITEM,
+  PROP_CANVAS_WINDOW,
+  PROP_WORLD_COORDINATE_SYSTEM,
   N_PROPERTIES
-};
-
-static GParamSpec *obj_properties[N_PROPERTIES] = {
-    NULL,
 };
 
 G_DEFINE_TYPE_WITH_CODE(PadCanvas, pad_canvas, GTK_TYPE_CONTAINER,
@@ -175,6 +174,7 @@ static void pad_canvas_configure_vadjustment(PadCanvas *self,
   }
 }
 
+/* Sets the offset and resizes the window and then calls the draw queue. */
 static void pad_canvas_update(PadCanvas *self) {
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
   gdouble width_pixels, height_pixels;
@@ -183,16 +183,16 @@ static void pad_canvas_update(PadCanvas *self) {
   if (!priv->world_cs) {
     return;
   }
-
+  /*
   g_object_get(priv->world_cs, "bound-width", &width_pixels, "bound-height",
                &height_pixels, NULL);
   pad_coordinate_system_distance_in_space(priv->world_cs, &width_pixels,
                                           &height_pixels);
-
+  */
   /* The actual window size is always at least as big as the widget's window.*/
-  window_width = MAX((gint)width_pixels, priv->window_alloc_width);
-  window_height = MAX((gint)height_pixels, priv->window_alloc_height);
-
+  // window_width = MAX((gint)width_pixels, priv->window_alloc_width);
+  // window_height = MAX((gint)height_pixels, priv->window_alloc_height);
+  /*
   if (priv->hadjustment) {
     pad_canvas_configure_hadjustment(self, window_width);
     window_x = -gtk_adjustment_get_value(priv->hadjustment);
@@ -203,15 +203,51 @@ static void pad_canvas_update(PadCanvas *self) {
     pad_canvas_configure_vadjustment(self, window_height);
     window_y = -gtk_adjustment_get_value(priv->vadjustment);
     priv->window_y = window_y;
-  }
+  }*/
 
   if (gtk_widget_get_realized(GTK_WIDGET(self))) {
     pad_canvas_set_offset(self);
-    gdk_window_move_resize(priv->canvas_window, window_x, window_y,
-                           window_width, window_height);
+    // gdk_window_move_resize(priv->canvas_window, priv->window_x,
+    // priv->window_y,
+    //                       window_width, window_height);
   }
 
   gtk_widget_queue_draw(GTK_WIDGET(self));
+}
+
+/* Gets the real window size since the bounds of the world coordinate system
+   maybe bigger than the allocated height and width of the canvas. */
+static void pad_canvas_get_window_size(PadCanvas *self, gdouble *window_width,
+                                       gdouble *window_height) {
+  PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
+  gdouble world_width, world_height;
+
+  g_object_get(priv->world_cs, "bound-width", &world_width, "bound-height",
+               &world_height, NULL);
+  pad_coordinate_system_distance_in_space(priv->world_cs, &world_width,
+                                          &world_height);
+  *window_width = MAX((gint)world_width, priv->window_alloc_width);
+  *window_height = MAX((gint)world_height, priv->window_alloc_height);
+}
+
+/* Sets the adjustments for scrolled window. This should be called after any
+ * change to the scrolled window or if the bounds of the world coordinate system
+ * change. */
+static void pad_canvas_update_adjustments(PadCanvas *self) {
+  PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
+  gdouble window_width, window_height;
+
+  pad_canvas_get_window_size(self, &window_width, &window_height);
+
+  if (priv->hadjustment) {
+    pad_canvas_configure_hadjustment(self, window_width);
+    priv->window_x = -gtk_adjustment_get_value(priv->hadjustment);
+  }
+
+  if (priv->vadjustment) {
+    pad_canvas_configure_vadjustment(self, window_height);
+    priv->window_y = -gtk_adjustment_get_value(priv->vadjustment);
+  }
 }
 
 static void pad_canvas_adjustment_value_changed(GtkAdjustment *adjustment,
@@ -219,14 +255,21 @@ static void pad_canvas_adjustment_value_changed(GtkAdjustment *adjustment,
   g_print("pad_canvas_adjustment_value_changed\n");
 
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(canvas);
-  GdkWindow *canvas_window;
-  gint new_window_x, new_window_y;
+  gdouble window_width, window_height;
 
   if (gtk_widget_get_realized(GTK_WIDGET(canvas))) {
     /* NOTE: GTK+ 3.0 always redraws the entire window when scrolling, so
        we don't need to do this. We could possibly use something like
        GtkPixelCache in future to speed up scrolling, if it is made public. */
     /* Move the window to the new position. */
+
+    pad_canvas_get_window_size(canvas, &window_width, &window_height);
+
+    pad_canvas_update_adjustments(canvas);
+
+    gdk_window_move_resize(priv->canvas_window, priv->window_x, priv->window_y,
+                           window_width, window_height);
+
     pad_canvas_update(canvas);
   }
 }
@@ -344,6 +387,18 @@ static void pad_canvas_get_property(GObject *object, guint prop_id,
     g_value_set_double(value, priv->world_scale);
     break;
 
+  case PROP_ROOT_ITEM:
+    g_value_set_object(value, priv->root_item);
+    break;
+
+  case PROP_CANVAS_WINDOW:
+    g_value_set_object(value, priv->canvas_window);
+    break;
+
+  case PROP_WORLD_COORDINATE_SYSTEM:
+    g_value_set_object(value, priv->world_cs);
+    break;
+
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
     break;
@@ -379,6 +434,16 @@ static void pad_canvas_set_property(GObject *object, guint prop_id,
 
   case PROP_WORLD_SCALE:
     pad_canvas_set_world_scale(PAD_CANVAS(object), g_value_get_double(value));
+    break;
+
+  case PROP_ROOT_ITEM:
+    g_object_unref(priv->root_item);
+    priv->root_item = g_value_get_object(value);
+    break;
+
+  case PROP_CANVAS_WINDOW:
+    g_object_unref(priv->canvas_window);
+    priv->canvas_window = g_value_get_object(value);
     break;
 
   default:
@@ -601,6 +666,24 @@ static void pad_canvas_class_init(PadCanvasClass *klass) {
                           "Scale of world coordinate system", 0.00001,
                           G_MAXDOUBLE, 1.0, G_PARAM_READWRITE));
 
+  g_object_class_install_property(
+      gobject_class, PROP_ROOT_ITEM,
+      g_param_spec_object("root-item", "Root item",
+                          "The root item of the canvas", PAD_TYPE_CANVAS_ITEM,
+                          G_PARAM_READWRITE));
+
+  g_object_class_install_property(
+      gobject_class, PROP_CANVAS_WINDOW,
+      g_param_spec_object("canvas-window", "Canvas window",
+                          "The window of the canvas that gets scrolled around",
+                          GDK_TYPE_WINDOW, G_PARAM_READABLE));
+
+  g_object_class_install_property(
+      gobject_class, PROP_WORLD_COORDINATE_SYSTEM,
+      g_param_spec_object("world-coordinate-system", "World coordinate system",
+                          "The canvas world coordinate system",
+                          PAD_TYPE_COORDINATE_SYSTEM, G_PARAM_READABLE));
+
   /* GtkScrollable Interface */
   g_object_class_override_property(gobject_class, PROP_HADJUSTMENT,
                                    "hadjustment");
@@ -615,9 +698,15 @@ static void pad_canvas_class_init(PadCanvasClass *klass) {
 static void pad_canvas_init(PadCanvas *self) {
   g_print("pad_canvas_init\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
+  gdouble window_width, window_height;
 
   priv->world_cs = pad_coordinate_system_new();
   priv->root_item = PAD_CANVAS_ITEM(pad_canvas_item_group_new(NULL));
+
+  pad_canvas_get_window_size(self, &window_width, &window_height);
+
+  pad_canvas_set_hadjustment(self, NULL);
+  pad_canvas_set_vadjustment(self, NULL);
   /*
   PadCanvasItem *line1 = pad_canvas_item_polyline_new(NULL);
   pad_canvas_item_group_add_item(PAD_CANVAS_ITEM_GROUP(priv->root_item), line1);
@@ -675,6 +764,8 @@ void pad_canvas_set_world_bounds(PadCanvas *self, gdouble width,
   pad_coordinate_system_distance_in_space(priv->world_cs, &width, &height);
   priv->world_bound_width_scaled = width;
   priv->world_bound_height_scaled = height;
+
+  pad_canvas_update_adjustments(self);
 
   pad_canvas_update(self);
 }
@@ -754,41 +845,13 @@ void pad_canvas_world_to_window(PadCanvas *self, gdouble *x, gdouble *y) {
 }
 
 /**
- * pad_canvas_get_world_cs:
- * @self The #PadCanvas you want the world #PadCoordinateSystem of
- *
- * Used mainly for debugging. Don't forget to call g_object_unref().
- *
- * Returns: The #PadCanvas world #PadCoordinateSystem.
+ * pad_canvas_scroll_to:
+ * NOT IMPLEMENTED YET
  */
-PadCoordinateSystem *pad_canvas_get_world_cs(PadCanvas *self) {
-  g_return_val_if_fail(PAD_IS_CANVAS(self), NULL);
-
-  PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
-  g_object_ref(priv->world_cs);
-
-  return priv->world_cs;
-}
-
-PadCanvasItem *pad_canvas_get_root_item(PadCanvas *self) {
-  PadCanvasPrivate *priv;
-
-  g_return_val_if_fail(PAD_IS_CANVAS(self), NULL);
-
-  priv = pad_canvas_get_instance_private(self);
-
-  return priv->root_item;
-}
-
-GdkWindow *pad_canvas_get_window(PadCanvas *self) {
-  PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
-
-  return priv->canvas_window;
-}
-
 void pad_canvas_scroll_to(PadCanvas *self, gdouble vadjustment,
                           gdouble hadjustment) {
 
+  return;
   PadCanvasPrivate *priv;
 
   g_return_if_fail(PAD_IS_CANVAS(self));

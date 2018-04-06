@@ -35,9 +35,7 @@ struct _PadCanvasItem {
 
   GObject parent_instance;
 
-  /* If this is set to FALSE, the drawing method of the item will not be called.
-   */
-  gboolean need_update;
+  gdouble world_x, world_y;
 
   /* <private> */
   /* We might use this in future for things like a cache. */

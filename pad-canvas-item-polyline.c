@@ -67,7 +67,7 @@ PadCanvasItem *pad_canvas_item_polyline_new(PadCanvasItem *parent_item) {
   PadCanvasItem *canvas_item_polyline =
       g_object_new(PAD_TYPE_CANVAS_ITEM_POLYLINE, NULL);
 
-  PAD_CANVAS_ITEM(canvas_item_polyline)->need_update = TRUE;
+  //PAD_CANVAS_ITEM(canvas_item_polyline)->need_update = TRUE;
 
   return canvas_item_polyline;
 }
@@ -85,7 +85,7 @@ void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
 
   priv->points_list = g_list_append(priv->points_list, point);
 
-  PAD_CANVAS_ITEM(self)->need_update = TRUE;
+  //PAD_CANVAS_ITEM(self)->need_update = TRUE;
 }
 
 void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr,

@@ -46,12 +46,6 @@ void pad_canvas_window_to_world(PadCanvas *self, gdouble *x, gdouble *y);
 
 void pad_canvas_world_to_window(PadCanvas *self, gdouble *x, gdouble *y);
 
-PadCoordinateSystem *pad_canvas_get_world_cs(PadCanvas *self);
-
-PadCanvasItem *pad_canvas_get_root_item(PadCanvas *self);
-
-GdkWindow *pad_canvas_get_window(PadCanvas *self);
-
 void pad_canvas_scroll_to(PadCanvas *self, gdouble vadjustment,
                           gdouble hadjustment);
 

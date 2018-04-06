@@ -8,8 +8,10 @@
 void pad_canvas_debug_draw_world_bounds(GtkWidget *widget, cairo_t *cr) {
   PadCanvas *canvas = PAD_CANVAS(widget);
   gdouble x = 0, y = 0;
-  PadCoordinateSystem *world_cs = pad_canvas_get_world_cs(canvas);
+  PadCoordinateSystem *world_cs;
   gdouble world_bound_width, world_bound_height;
+
+  g_object_get(widget, "world-coordinate-system", &world_cs, NULL);
 
   g_object_get(world_cs, "bound-width", &world_bound_width, "bound-height",
                &world_bound_height, NULL);
@@ -58,8 +60,10 @@ void pad_canvas_debug_draw_world_bounds(GtkWidget *widget, cairo_t *cr) {
 
 void pad_canvas_debug_draw_world_center(GtkWidget *widget, cairo_t *cr) {
   PadCanvas *canvas = PAD_CANVAS(widget);
-  PadCoordinateSystem *world_cs = pad_canvas_get_world_cs(canvas);
+  PadCoordinateSystem *world_cs;
   gdouble world_bound_width, world_bound_height, world_center_x, world_center_y;
+
+  g_object_get(widget, "world-coordinate-system", &world_cs, NULL);
 
   g_object_get(world_cs, "bound-width", &world_bound_width, "bound-height",
                &world_bound_height, NULL);
@@ -83,9 +87,11 @@ void pad_canvas_debug_draw_world_center(GtkWidget *widget, cairo_t *cr) {
 
 void pad_canvas_debug_draw_grid(GtkWidget *widget, cairo_t *cr) {
   PadCanvas *canvas = PAD_CANVAS(widget);
-  PadCoordinateSystem *world_cs = pad_canvas_get_world_cs(canvas);
+  PadCoordinateSystem *world_cs;
   gdouble world_bound_width, world_bound_height;
   gint nlen, mlen;
+
+  g_object_get(widget, "world-coordinate-system", &world_cs, NULL);
 
   g_object_get(world_cs, "bound-width", &world_bound_width, "bound-height",
                &world_bound_height, NULL);
@@ -136,7 +142,7 @@ void pad_canvas_debug_draw_grid(GtkWidget *widget, cairo_t *cr) {
 
 void pad_canvas_debug_draw_background(GtkWidget *widget, cairo_t *cr) {
   cairo_save(cr);
-  cairo_set_source_rgb(cr, 1, 1, 1);
+  cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
   cairo_paint(cr);
   cairo_restore(cr);
 }
