@@ -59,21 +59,40 @@ pad_canvas_item_polyline_class_init(PadCanvasItemPolylineClass *klass) {
   gobject_class->finalize = pad_canvas_item_polyline_finalize;
 
   canvas_item_class->draw = pad_canvas_item_polyline_draw;
+  canvas_item_class->add = pad_canvas_item_polyline_add;
 }
 
 static void pad_canvas_item_polyline_init(PadCanvasItemPolyline *self) {}
 
-PadCanvasItem *pad_canvas_item_polyline_new(PadCanvasItem *parent_item) {
-  PadCanvasItem *canvas_item_polyline =
-      g_object_new(PAD_TYPE_CANVAS_ITEM_POLYLINE, NULL);
+PadCanvasItem *pad_canvas_item_polyline_new(PadCanvasItem *parent_item, ...) {
+  va_list var_args;
+  const char *first_property;
+  PadCanvasItem *item = g_object_new(PAD_TYPE_CANVAS_ITEM_POLYLINE,
+                                     "parent-item", parent_item, NULL);
 
-  //PAD_CANVAS_ITEM(canvas_item_polyline)->need_update = TRUE;
+  va_start(var_args, parent_item);
+  first_property = va_arg(var_args, char *);
+  if (first_property) {
+    g_object_set_valist(G_OBJECT(item), first_property, var_args);
+  }
+  va_end(var_args);
 
-  return canvas_item_polyline;
+  return item;
 }
 
+/**
+ * pad_canvas_item_polyline_add_point:
+ * @self The #PadCanvasItemPolyline you want to use
+ * @x X coordinate in world space
+ * @y Y coordinate in world space
+ * @line_width Line width
+ *
+ * Adds a new point to the polyline.
+ */
 void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
                                         gdouble y, gdouble line_width) {
+  g_return_if_fail(PAD_IS_CANVAS_ITEM_POLYLINE(self));
+
   PolylinePoint *point;
   PadCanvasItemPolylinePrivate *priv =
       pad_canvas_item_polyline_get_instance_private(self);
@@ -84,12 +103,12 @@ void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
   point->line_width = line_width;
 
   priv->points_list = g_list_append(priv->points_list, point);
-
-  //PAD_CANVAS_ITEM(self)->need_update = TRUE;
 }
 
 void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr,
                                    PadCanvasDrawArea *draw_area) {
+  g_return_if_fail(PAD_IS_CANVAS_ITEM_POLYLINE(self));
+
   PadCanvasItemPolylinePrivate *priv =
       pad_canvas_item_polyline_get_instance_private(
           PAD_CANVAS_ITEM_POLYLINE(self));
@@ -116,4 +135,8 @@ void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr,
     cairo_stroke(cr);
   }
   cairo_restore(cr);
+}
+
+void pad_canvas_item_polyline_add(PadCanvasItem *self, PadCanvasItem *child) {
+  self->child = child;
 }

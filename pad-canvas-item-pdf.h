@@ -28,6 +28,8 @@ PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
 void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr,
                               PadCanvasDrawArea *draw_area);
 
+void pad_canvas_item_pdf_add(PadCanvasItem *self, PadCanvasItem *child);
+
 G_END_DECLS
 
 #endif /* __PAD_CANVAS_ITEM_PDF__ */

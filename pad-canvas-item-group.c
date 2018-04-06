@@ -49,27 +49,43 @@ static void pad_canvas_item_group_class_init(PadCanvasItemGroupClass *klass) {
   gobject_class->finalize = pad_canvas_item_group_finalize;
 
   canvas_item_class->draw = pad_canvas_item_group_draw;
+  canvas_item_class->add = pad_canvas_item_group_add;
 }
 
 static void pad_canvas_item_group_init(PadCanvasItemGroup *self) {}
 
-PadCanvasItem *pad_canvas_item_group_new(PadCanvasItem *parent_item) {
-  PadCanvasItem *canvas_item_group =
-      g_object_new(PAD_TYPE_CANVAS_ITEM_GROUP, NULL);
+/**
+ * pad_canvas_item_group_new:
+ *
+ * Creates a new #PadCanvasItemGroup
+ * @parent_item (allow-none) The items parent
+ * @...: Optional pairs of property names and values and a terminating %NULL
+ *
+ * Returns: The newly created #PadCanvasItemGroup.
+ */
+PadCanvasItem *pad_canvas_item_group_new(PadCanvasItem *parent_item, ...) {
+  va_list var_args;
+  const char *first_property;
+  PadCanvasItem *item = g_object_new(PAD_TYPE_CANVAS_ITEM_GROUP, "parent-item",
+                                     parent_item, NULL);
 
-  //canvas_item_group->need_update = TRUE;
+  va_start(var_args, parent_item);
+  first_property = va_arg(var_args, char *);
+  if (first_property) {
+    g_object_set_valist(G_OBJECT(item), first_property, var_args);
+  }
+  va_end(var_args);
 
-  return canvas_item_group;
+  return item;
 }
 
-void pad_canvas_item_group_add_item(PadCanvasItemGroup *self,
-                                    PadCanvasItem *item) {
+void pad_canvas_item_group_add(PadCanvasItem *self, PadCanvasItem *item) {
+  g_return_if_fail(PAD_IS_CANVAS_ITEM_GROUP(self));
+
   PadCanvasItemGroupPrivate *priv =
-      pad_canvas_item_group_get_instance_private(self);
+      pad_canvas_item_group_get_instance_private(PAD_CANVAS_ITEM_GROUP(self));
 
   priv->item_list = g_list_append(priv->item_list, item);
-
-  //PAD_CANVAS_ITEM(self)->need_update = TRUE;
 }
 
 void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr,

@@ -15,6 +15,7 @@
 G_BEGIN_DECLS
 
 #define PAD_TYPE_CANVAS pad_canvas_get_type()
+
 G_DECLARE_DERIVABLE_TYPE(PadCanvas, pad_canvas, PAD, CANVAS, GtkContainer);
 
 typedef struct _PadCanvasClass {
@@ -24,7 +25,13 @@ typedef struct _PadCanvasClass {
 
 } PadCanvasClass;
 
-/*
+/**
+ * PadCanvasDrawArea:
+ * @x X Coordinate
+ * @y Y Coordinate
+ * @width Width
+ * @height Height
+ *
  * The area that will be drawn on the screen in world coordinates.
  */
 typedef struct _PadCanvasDrawArea {
@@ -32,8 +39,6 @@ typedef struct _PadCanvasDrawArea {
   gdouble x, y, width, height;
 
 } PadCanvasDrawArea;
-
-// GType           goo_canvas_get_type	    (void) G_GNUC_CONST;
 
 GtkWidget *pad_canvas_new(void);
 

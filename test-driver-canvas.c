@@ -91,7 +91,7 @@ static void set_pdf_page() {
 
   if (doc == NULL && root_item != NULL) {
     gdouble width, height;
-    doc = open_pdf_file("/home/human/Uni/Analysis1/ana1.pdf");
+    doc = open_pdf_file("/home/human/Documents/Rechnerarchitektur_Hellmann/[9783486720020 - Rechnerarchitektur] Teil 1 Grundlagen.pdf");
     if (doc == NULL) {
       return;
     }
@@ -111,15 +111,11 @@ static void set_pdf_page() {
 static void on_canvas_scale_changed(GtkGestureZoom *controller, gdouble scale,
                                     GtkWidget *widget) {
   static gdouble prev_scale = 1;
-  g_print("on_canvas_scale_changed\n");
-  g_print("on_canvas_scale_changed: scale: %lf\n", scale);
 
   if (prev_scale < scale) {
     smooth_zoom(PAD_CANVAS(widget), ZOOM_DIRECTION_OUT);
-    // pad_canvas_set_world_scale(PAD_CANVAS(widget), 1.05);
   } else if (prev_scale > scale) {
     smooth_zoom(PAD_CANVAS(widget), ZOOM_DIRECTION_IN);
-    // pad_canvas_set_world_scale(PAD_CANVAS(widget), 0.95);
   }
   prev_scale = scale;
 }
@@ -130,15 +126,11 @@ static gboolean on_canvas_motion_notify_event(GtkWidget *widget,
   }
 
   if (current_line) {
-    g_print("on_canvas_motion_notify_event\n");
     gdouble x = event->x;
     gdouble y = event->y;
     gdouble line_width = get_pressure(event) * 3;
 
-    g_print("on_canvas_motion_notify_event: window space x: %lf y: %lf\n", x,
-            y);
     pad_canvas_window_to_world(PAD_CANVAS(canvas), &x, &y);
-    g_print("on_canvas_motion_notify_event: world space x: %lf y: %lf\n", x, y);
     pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(current_line),
                                        x, y, line_width);
 
@@ -150,14 +142,11 @@ static gboolean on_canvas_motion_notify_event(GtkWidget *widget,
 
 static gboolean on_canvas_button_press_event(GtkWidget *widget, GdkEvent *event,
                                              gpointer data) {
-  g_print("on_canvas_button_press_event\n");
   gdouble x = event->motion.x;
   gdouble y = event->motion.y;
   gdouble line_width = get_pressure(&event->motion) * 3;
 
-  current_line = pad_canvas_item_polyline_new(NULL);
-  pad_canvas_item_group_add_item(PAD_CANVAS_ITEM_GROUP(root_item),
-                                 current_line);
+  current_line = pad_canvas_item_polyline_new(root_item, NULL);
   pad_canvas_window_to_world(PAD_CANVAS(canvas), &x, &y);
   pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(current_line), x,
                                      y, line_width);
@@ -170,7 +159,6 @@ static gboolean on_canvas_button_press_event(GtkWidget *widget, GdkEvent *event,
 
 static gboolean on_canvas_button_release_event(GtkWidget *widget,
                                                GdkEvent *event, gpointer data) {
-  g_print("on_canvas_button_release_event\n");
   if (current_line) {
     gdouble x = event->motion.x;
     gdouble y = event->motion.y;
@@ -188,7 +176,6 @@ static gboolean on_canvas_button_release_event(GtkWidget *widget,
 }
 static void on_spin_button_value_changed(GtkSpinButton *spin_button,
                                          gpointer data) {
-  g_print("on_spin_button_value_changed\n");
   static gdouble bound_x = 0, bound_y = 0, scale = 1;
 
   if (spin_button == GTK_SPIN_BUTTON(spinbtn_bound_x)) {

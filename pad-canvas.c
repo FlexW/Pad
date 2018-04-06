@@ -72,6 +72,9 @@ G_DEFINE_TYPE_WITH_CODE(PadCanvas, pad_canvas, GTK_TYPE_CONTAINER,
                         G_ADD_PRIVATE(PadCanvas)
                             G_IMPLEMENT_INTERFACE(GTK_TYPE_SCROLLABLE, NULL))
 
+/* Sets the offset of the canvas. This is needed if the canvas is smaller than
+  the window. After a call to this function the offset can be read from
+  priv->canvas_x_offset and priv->canvas_y_offset. */
 static void pad_canvas_set_offset(PadCanvas *self) {
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
   PadCoordinateSystem *world_cs = priv->world_cs;
@@ -174,45 +177,18 @@ static void pad_canvas_configure_vadjustment(PadCanvas *self,
   }
 }
 
-/* Sets the offset and resizes the window and then calls the draw queue. */
+/* Sets the offset and then calls the draw queue. */
 static void pad_canvas_update(PadCanvas *self) {
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
-  gdouble width_pixels, height_pixels;
-  gint window_x = 0, window_y = 0, window_width, window_height;
 
   if (!priv->world_cs) {
     return;
   }
-  /*
-  g_object_get(priv->world_cs, "bound-width", &width_pixels, "bound-height",
-               &height_pixels, NULL);
-  pad_coordinate_system_distance_in_space(priv->world_cs, &width_pixels,
-                                          &height_pixels);
-  */
-  /* The actual window size is always at least as big as the widget's window.*/
-  // window_width = MAX((gint)width_pixels, priv->window_alloc_width);
-  // window_height = MAX((gint)height_pixels, priv->window_alloc_height);
-  /*
-  if (priv->hadjustment) {
-    pad_canvas_configure_hadjustment(self, window_width);
-    window_x = -gtk_adjustment_get_value(priv->hadjustment);
-    priv->window_x = window_x;
-  }
-
-  if (priv->vadjustment) {
-    pad_canvas_configure_vadjustment(self, window_height);
-    window_y = -gtk_adjustment_get_value(priv->vadjustment);
-    priv->window_y = window_y;
-  }*/
 
   if (gtk_widget_get_realized(GTK_WIDGET(self))) {
     pad_canvas_set_offset(self);
-    // gdk_window_move_resize(priv->canvas_window, priv->window_x,
-    // priv->window_y,
-    //                       window_width, window_height);
+    gtk_widget_queue_draw(GTK_WIDGET(self));
   }
-
-  gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 
 /* Gets the real window size since the bounds of the world coordinate system
@@ -252,8 +228,6 @@ static void pad_canvas_update_adjustments(PadCanvas *self) {
 
 static void pad_canvas_adjustment_value_changed(GtkAdjustment *adjustment,
                                                 PadCanvas *canvas) {
-  g_print("pad_canvas_adjustment_value_changed\n");
-
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(canvas);
   gdouble window_width, window_height;
 
@@ -330,7 +304,6 @@ static void pad_canvas_set_vadjustment(PadCanvas *self,
 }
 
 static void pad_canvas_dispose(GObject *gobject) {
-  g_print("pad_canvas_dispose\n");
   PadCanvas *canvas = PAD_CANVAS(gobject);
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(canvas);
 
@@ -354,7 +327,6 @@ static void pad_canvas_dispose(GObject *gobject) {
 }
 
 static void pad_canvas_finalize(GObject *gobject) {
-  g_print("pad_canvas_finalize\n");
   G_OBJECT_CLASS(pad_canvas_parent_class)->finalize(gobject);
 }
 
@@ -454,7 +426,6 @@ static void pad_canvas_set_property(GObject *object, guint prop_id,
 
 static void pad_canvas_size_allocate(GtkWidget *widget,
                                      GtkAllocation *allocation) {
-  g_print("pad_canvas_size_allocate\n");
   g_return_if_fail(PAD_IS_CANVAS(widget));
 
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
@@ -474,23 +445,15 @@ static void pad_canvas_size_allocate(GtkWidget *widget,
   pad_canvas_update(PAD_CANVAS(widget));
 }
 
-static void pad_canvas_add(GtkContainer *container, GtkWidget *widget) {
-  g_print("pad_canvas_add\n");
-}
+static void pad_canvas_add(GtkContainer *container, GtkWidget *widget) {}
 
-static void pad_canvas_remove(GtkContainer *container, GtkWidget *widget) {
-  g_print("pad_canvas_remove\n");
-}
+static void pad_canvas_remove(GtkContainer *container, GtkWidget *widget) {}
 
 static void pad_canvas_forall(GtkContainer *container,
                               gboolean include_internals, GtkCallback callback,
-                              gpointer callback_data) {
-  g_print("pad_canvas_forall\n");
-}
+                              gpointer callback_data) {}
 
 static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
-  g_print("pad_canvas_draw\n");
-  PadCanvas *canvas = PAD_CANVAS(widget);
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
   gdouble clip_bounds_x1, clip_bounds_x2, clip_bounds_y1, clip_bounds_y2;
   PadCanvasDrawArea draw_area;
@@ -523,13 +486,14 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   cairo_close_path(cr);
   cairo_clip(cr);
 
-  pad_canvas_debug_draw_background(widget, cr);
-  // pad_canvas_debug_draw_world_center(widget, cr);
-  // pad_canvas_debug_draw_grid(widget, cr);
-  // pad_canvas_debug_draw_world_bounds(widget, cr);
+  //pad_canvas_debug_draw_background(widget, cr);
 
   cairo_scale(cr, priv->world_scale, priv->world_scale);
   pad_canvas_item_draw(priv->root_item, cr, &draw_area);
+
+  //pad_canvas_debug_draw_world_center(widget, cr);
+  //pad_canvas_debug_draw_grid(widget, cr);
+  //pad_canvas_debug_draw_world_bounds(widget, cr);
 
   cairo_restore(cr);
 
@@ -537,7 +501,6 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
 }
 
 static void pad_canvas_realize(GtkWidget *widget) {
-  g_print("pad_canvas_realize\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
   GtkAllocation allocation;
   GdkWindow *window;
@@ -583,7 +546,6 @@ static void pad_canvas_realize(GtkWidget *widget) {
   attributes.event_mask = GDK_EXPOSURE_MASK | GDK_SCROLL_MASK |
                           GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
                           GDK_POINTER_MOTION_MASK
-                          //| GDK_POINTER_MOTION_HINT_MASK
                           | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
                           GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
                           GDK_FOCUS_CHANGE_MASK | gtk_widget_get_events(widget);
@@ -598,7 +560,6 @@ static void pad_canvas_realize(GtkWidget *widget) {
 }
 
 static void pad_canvas_unrealize(GtkWidget *widget) {
-  g_print("pad_canvas_unrealize\n");
   PadCanvas *canvas;
   PadCanvasPrivate *priv;
 
@@ -618,7 +579,6 @@ static void pad_canvas_unrealize(GtkWidget *widget) {
 }
 
 static void pad_canvas_map(GtkWidget *widget) {
-  g_print("pad_canvas_map\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
   GTK_WIDGET_CLASS(pad_canvas_parent_class)->map(widget);
 
@@ -629,12 +589,10 @@ static void pad_canvas_map(GtkWidget *widget) {
 }
 
 static void pad_canvas_unmap(GtkWidget *widget) {
-  g_print("pad_canvas_unmap\n");
   GTK_WIDGET_CLASS(pad_canvas_parent_class)->unmap(widget);
 }
 
 static void pad_canvas_class_init(PadCanvasClass *klass) {
-  g_print("pad_canvas_class_init\n");
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
   GtkContainerClass *container_class = GTK_CONTAINER_CLASS(klass);
@@ -696,33 +654,11 @@ static void pad_canvas_class_init(PadCanvasClass *klass) {
 }
 
 static void pad_canvas_init(PadCanvas *self) {
-  g_print("pad_canvas_init\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
-  gdouble window_width, window_height;
 
-  priv->world_cs = pad_coordinate_system_new();
-  priv->root_item = PAD_CANVAS_ITEM(pad_canvas_item_group_new(NULL));
-
-  pad_canvas_get_window_size(self, &window_width, &window_height);
-
-  pad_canvas_set_hadjustment(self, NULL);
-  pad_canvas_set_vadjustment(self, NULL);
-  /*
-  PadCanvasItem *line1 = pad_canvas_item_polyline_new(NULL);
-  pad_canvas_item_group_add_item(PAD_CANVAS_ITEM_GROUP(priv->root_item), line1);
-  pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(line1), 10, 10,
-  2); pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(line1), 40,
-  10, 3); pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(line1),
-  20, 20, 4);
-
-  PadCanvasItem *line2 = pad_canvas_item_polyline_new(NULL);
-  pad_canvas_item_group_add_item(PAD_CANVAS_ITEM_GROUP(priv->root_item), line2);
-  pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(line2), 80, 80,
-  5); pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(line2), 65,
-  65, 4); pad_canvas_item_polyline_add_point(PAD_CANVAS_ITEM_POLYLINE(line2),
-  50, 50, 3);
-  */
   priv->world_scale = 1;
+  priv->world_cs = pad_coordinate_system_new();
+  priv->root_item = PAD_CANVAS_ITEM(pad_canvas_item_group_new(NULL, NULL));
 }
 
 /**
@@ -733,7 +669,6 @@ static void pad_canvas_init(PadCanvas *self) {
  * Returns: The newly created #PadCanvas.
  */
 GtkWidget *pad_canvas_new(void) {
-  g_print("pad_canvas_new\n");
   GtkWidget *widget = g_object_new(PAD_TYPE_CANVAS, NULL);
 
   return widget;
@@ -813,11 +748,6 @@ void pad_canvas_window_to_world(PadCanvas *self, gdouble *x, gdouble *y) {
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
   gdouble org_x = priv->canvas_x_offset, org_y = priv->canvas_y_offset;
   gdouble world_cs_scale = priv->world_scale;
-
-  g_print("pad_canvas_window_to_world: org_x: %lf org_y: %lf\n", org_x, org_y);
-
-  // g_object_get(priv->world_cs, "scale", &world_cs_scale, NULL);
-  g_print("pad_canvas_window_to_world: world_cs_scale: %lf\n", world_cs_scale);
 
   *x -= org_x;
   *y -= org_y;

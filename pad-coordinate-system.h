@@ -10,6 +10,7 @@
 G_BEGIN_DECLS
 
 #define PAD_TYPE_COORDINATE_SYSTEM pad_coordinate_system_get_type()
+
 G_DECLARE_FINAL_TYPE(PadCoordinateSystem, pad_coordinate_system, PAD,
                      COORDINATE_SYSTEM, GObject);
 

@@ -54,19 +54,16 @@ static void pad_coordinate_system_get_scale(PadCoordinateSystem *self,
 }
 
 static void pad_coordinate_system_dispose(GObject *gobject) {
-  g_print("pad_coordinate_system_dispose\n");
   G_OBJECT_CLASS(pad_coordinate_system_parent_class)->dispose(gobject);
 }
 
 static void pad_coordinate_system_finalize(GObject *gobject) {
-  g_print("pad_coordinate_system_finalize\n");
   G_OBJECT_CLASS(pad_coordinate_system_parent_class)->finalize(gobject);
 }
 
 static void pad_coordinate_system_set_property(GObject *object, guint prop_id,
                                                const GValue *value,
                                                GParamSpec *pspec) {
-  g_print("pad_coordinate_system_set_property\n");
   PadCoordinateSystem *cs = PAD_COORDINATE_SYSTEM(object);
 
   switch (prop_id) {
@@ -103,7 +100,6 @@ static void pad_coordinate_system_set_property(GObject *object, guint prop_id,
 static void pad_coordinate_system_get_property(GObject *object, guint prop_id,
                                                GValue *value,
                                                GParamSpec *pspec) {
-  g_print("pad_coordinate_system_get_property\n");
   PadCoordinateSystem *cs = PAD_COORDINATE_SYSTEM(object);
 
   switch (prop_id) {
@@ -137,7 +133,6 @@ static void pad_coordinate_system_get_property(GObject *object, guint prop_id,
 }
 
 static void pad_coordinate_system_class_init(PadCoordinateSystemClass *klass) {
-  g_print("pad_coordinate_system_class_init\n");
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   gobject_class->set_property = pad_coordinate_system_set_property;
@@ -161,7 +156,6 @@ static void pad_coordinate_system_class_init(PadCoordinateSystemClass *klass) {
 }
 
 static void pad_coordinate_system_init(PadCoordinateSystem *self) {
-  g_print("pad_coordinate_system_init\n");
   cairo_matrix_init_scale(&self->matrix, 1, 1);
 }
 
@@ -173,7 +167,6 @@ static void pad_coordinate_system_init(PadCoordinateSystem *self) {
  * Returns: The newly created #PadCoordinateSystem.
  */
 PadCoordinateSystem *pad_coordinate_system_new(void) {
-  g_print("pad_coordinate_system_new\n");
   PadCoordinateSystem *cs = g_object_new(PAD_TYPE_COORDINATE_SYSTEM, NULL);
 
   return cs;

@@ -35,18 +35,16 @@ struct _PadCanvasItem {
 
   GObject parent_instance;
 
+  /* The position of the item in the world coordinate system. */
   gdouble world_x, world_y;
 
-  /* <private> */
-  /* We might use this in future for things like a cache. */
-  gpointer priv;
+  /* The items parent. */
+  PadCanvasItem *parent_item;
+
+  /* The items child. */
+  PadCanvasItem *child;
 };
 
-/*
-#define PAD_TYPE_CANVAS_ITEM pad_canvas_item_get_type()
-G_DECLARE_DERIVABLE_TYPE(PadCanvasItem, pad_canvas_item, PAD, CANVAS_ITEM,
-                         GObject);
-*/
 typedef struct _PadCanvasItemClass {
   /*< private >*/
   GObjectClass parent_class;
@@ -58,6 +56,8 @@ typedef struct _PadCanvasItemClass {
   gboolean (*is_in_draw_area)(PadCanvasItem *self,
                               PadCanvasDrawArea *draw_area);
 
+  void (*add)(PadCanvasItem *self, PadCanvasItem *child);
+
   /*< private >*/
   gpointer padding[30];
 
@@ -65,13 +65,15 @@ typedef struct _PadCanvasItemClass {
 
 GType pad_canvas_item_get_type(void) G_GNUC_CONST;
 
-PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item);
+PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item, ...);
 
 gboolean pad_canvas_item_is_in_draw_area(PadCanvasItem *self,
                                          PadCanvasDrawArea *draw_area);
 
 void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr,
                           PadCanvasDrawArea *draw_area);
+
+void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(PadCanvasItem, g_object_unref)
 
