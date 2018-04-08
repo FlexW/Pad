@@ -25,21 +25,6 @@ typedef struct _PadCanvasClass {
 
 } PadCanvasClass;
 
-/**
- * PadCanvasDrawArea:
- * @x X Coordinate
- * @y Y Coordinate
- * @width Width
- * @height Height
- *
- * The area that will be drawn on the screen in world coordinates.
- */
-typedef struct _PadCanvasDrawArea {
-
-  gdouble x, y, width, height;
-
-} PadCanvasDrawArea;
-
 GtkWidget *pad_canvas_new(void);
 
 void pad_canvas_set_world_bounds(PadCanvas *self, gdouble width,

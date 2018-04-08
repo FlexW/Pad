@@ -22,8 +22,7 @@ typedef struct _PadCanvasItemGroupClass {
 
 PadCanvasItem *pad_canvas_item_group_new(PadCanvasItem *parent_item, ...);
 
-void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr,
-                                PadCanvasDrawArea *draw_area);
+void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr);
 
 void pad_canvas_item_group_add(PadCanvasItem *self,
                                PadCanvasItem *item);

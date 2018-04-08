@@ -456,7 +456,6 @@ static void pad_canvas_forall(GtkContainer *container,
 static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
   gdouble clip_bounds_x1, clip_bounds_x2, clip_bounds_y1, clip_bounds_y2;
-  PadCanvasDrawArea draw_area;
 
   if (!gtk_cairo_should_draw_window(cr, priv->canvas_window)) {
     return FALSE;
@@ -464,15 +463,15 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   cairo_clip_extents(cr, &clip_bounds_x1, &clip_bounds_y1, &clip_bounds_x2,
                      &clip_bounds_y2);
 
-  draw_area.x = priv->canvas_x_offset;
-  draw_area.y = priv->canvas_y_offset;
-  draw_area.width = priv->world_bound_width;
-  draw_area.height = priv->world_bound_height;
+  //draw_area.x = priv->canvas_x_offset;
+  //draw_area.y = priv->canvas_y_offset;
+  //draw_area.width = priv->world_bound_width;
+  //draw_area.height = priv->world_bound_height;
 
   cairo_save(cr);
 
-  cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
-  cairo_paint(cr);
+  //cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
+  //cairo_paint(cr);
 
   cairo_translate(cr, priv->window_x, priv->window_y);
   cairo_translate(cr, priv->canvas_x_offset, priv->canvas_y_offset);
@@ -489,7 +488,7 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   //pad_canvas_debug_draw_background(widget, cr);
 
   cairo_scale(cr, priv->world_scale, priv->world_scale);
-  pad_canvas_item_draw(priv->root_item, cr, &draw_area);
+  pad_canvas_item_draw(priv->root_item, cr);
 
   //pad_canvas_debug_draw_world_center(widget, cr);
   //pad_canvas_debug_draw_grid(widget, cr);

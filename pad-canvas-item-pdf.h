@@ -25,8 +25,7 @@ typedef struct _PadCanvasItemPdfClass {
 PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
                                        PopplerPage *pdfpage, ...);
 
-void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr,
-                              PadCanvasDrawArea *draw_area);
+void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr);
 
 void pad_canvas_item_pdf_add(PadCanvasItem *self, PadCanvasItem *child);
 

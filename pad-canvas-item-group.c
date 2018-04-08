@@ -88,8 +88,7 @@ void pad_canvas_item_group_add(PadCanvasItem *self, PadCanvasItem *item) {
   priv->item_list = g_list_append(priv->item_list, item);
 }
 
-void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr,
-                                PadCanvasDrawArea *draw_area) {
+void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr) {
   g_return_if_fail(PAD_IS_CANVAS_ITEM_GROUP(self));
 
   PadCanvasItemGroupPrivate *priv =
@@ -98,6 +97,6 @@ void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr,
   for (GList *l = priv->item_list; l != NULL; l = l->next) {
     PadCanvasItem *item = PAD_CANVAS_ITEM(l->data);
 
-    pad_canvas_item_draw(item, cr, draw_area);
+    pad_canvas_item_draw(item, cr);
   }
 }

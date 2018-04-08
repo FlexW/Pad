@@ -12,7 +12,13 @@
 
 #include "pad-canvas-item.h"
 
-enum { PROP_WORLD_X = 1, PROP_WORLD_Y, PROP_PARENT_ITEM, N_PROPERTIES };
+enum {
+  PROP_WORLD_X = 1,
+  PROP_WORLD_Y,
+  PROP_PARENT_ITEM,
+  PROP_ITEM_BOUNDS,
+  N_PROPERTIES
+};
 
 G_DEFINE_TYPE(PadCanvasItem, pad_canvas_item, G_TYPE_OBJECT)
 
@@ -139,22 +145,6 @@ PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item, ...) {
 }
 
 /**
- * pad_canvas_item_is_in_draw_area:
- * THIS IS NOT USED YET.
- */
-gboolean pad_canvas_item_is_in_draw_area(PadCanvasItem *self,
-                                         PadCanvasDrawArea *draw_area) {
-  PadCanvasItemClass *klass;
-
-  g_return_val_if_fail(PAD_CANVAS_ITEM(self), FALSE);
-
-  klass = PAD_CANVAS_ITEM_GET_CLASS(self);
-  g_return_val_if_fail(klass->is_in_draw_area != NULL, FALSE);
-
-  return klass->is_in_draw_area(self, draw_area);
-}
-
-/**
  * pad_canvas_item_draw:
  * @self The #PadCanvasItem you want to draw
  * @cr The cairo context on that will be drawn
@@ -164,8 +154,7 @@ gboolean pad_canvas_item_is_in_draw_area(PadCanvasItem *self,
  * It gets called from the #PadCanvas draw method. The received cairo context is
  * already transformed from the world coordinate system.
  */
-void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr,
-                          PadCanvasDrawArea *draw_area) {
+void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr) {
   PadCanvasItemClass *klass;
 
   g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
@@ -173,7 +162,7 @@ void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr,
   klass = PAD_CANVAS_ITEM_GET_CLASS(self);
   g_return_if_fail(klass->draw != NULL);
 
-  klass->draw(self, cr, draw_area);
+  klass->draw(self, cr);
 }
 
 /**

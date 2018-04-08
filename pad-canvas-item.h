@@ -9,9 +9,10 @@
 
 //#include "pad-canvas.h"
 
-typedef struct _PadCanvasDrawArea PadCanvasDrawArea;
-
 G_BEGIN_DECLS
+
+GType pad_canvas_item_bounds_get_type(void) G_GNUC_CONST;
+#define PAD_TYPE_CANVAS_ITEM_BOUNDS (pad_canvas_item_bounds_get_type())
 
 #define PAD_TYPE_CANVAS_ITEM (pad_canvas_item_get_type())
 #define PAD_CANVAS_ITEM(item)                                                  \
@@ -51,10 +52,7 @@ typedef struct _PadCanvasItemClass {
 
   /* Virtual methods. */
   /*< public >*/
-  void (*draw)(PadCanvasItem *self, cairo_t *cr, PadCanvasDrawArea *draw_area);
-
-  gboolean (*is_in_draw_area)(PadCanvasItem *self,
-                              PadCanvasDrawArea *draw_area);
+  void (*draw)(PadCanvasItem *self, cairo_t *cr);
 
   void (*add)(PadCanvasItem *self, PadCanvasItem *child);
 
@@ -67,11 +65,7 @@ GType pad_canvas_item_get_type(void) G_GNUC_CONST;
 
 PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item, ...);
 
-gboolean pad_canvas_item_is_in_draw_area(PadCanvasItem *self,
-                                         PadCanvasDrawArea *draw_area);
-
-void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr,
-                          PadCanvasDrawArea *draw_area);
+void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr);
 
 void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child);
 

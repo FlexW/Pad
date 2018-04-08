@@ -105,8 +105,7 @@ void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
   priv->points_list = g_list_append(priv->points_list, point);
 }
 
-void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr,
-                                   PadCanvasDrawArea *draw_area) {
+void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr) {
   g_return_if_fail(PAD_IS_CANVAS_ITEM_POLYLINE(self));
 
   PadCanvasItemPolylinePrivate *priv =
