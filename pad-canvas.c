@@ -14,6 +14,7 @@
 #include "pad-canvas-debug.h"
 #include "pad-canvas-item-group.h"
 #include "pad-canvas-item-polyline.h"
+#include "pad-bounding-box.h"
 
 struct _PadCanvasPrivate {
   /* The world coordinate system. */
@@ -52,6 +53,9 @@ struct _PadCanvasPrivate {
 
   /* The canvas root item which holds all other items. */
   PadCanvasItem *root_item;
+
+  /* The area that is visible to the user in world space. */
+  PadBoundingBox view_bounding_box;
 };
 
 typedef struct _PadCanvasPrivate PadCanvasPrivate;

@@ -44,7 +44,7 @@ static void pad_canvas_item_pdf_class_init(PadCanvasItemPdfClass *klass) {
   gobject_class->finalize = pad_canvas_item_pdf_finalize;
 
   canvas_item_class->draw = pad_canvas_item_pdf_draw;
-  canvas_item_class->add = pad_canvas_item_add;
+  canvas_item_class->add = pad_canvas_item_pdf_add;
 }
 
 static void pad_canvas_item_pdf_init(PadCanvasItemPdf *self) {}
