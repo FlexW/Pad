@@ -7,9 +7,11 @@
 
 #include <gtk.h>
 
-//#include "pad-canvas.h"
+#include "pad-bounding-box.h"
 
 G_BEGIN_DECLS
+
+typedef struct _PadCanvas PadCanvas;
 
 GType pad_canvas_item_bounds_get_type(void) G_GNUC_CONST;
 #define PAD_TYPE_CANVAS_ITEM_BOUNDS (pad_canvas_item_bounds_get_type())
@@ -44,6 +46,13 @@ struct _PadCanvasItem {
 
   /* The items child. */
   PadCanvasItem *child;
+
+  /* The items canvas. */
+  PadCanvas *canvas;
+
+  /* The items bounding box in world space. Update with:
+   * pad_canvas_item_update_bounding_box() */
+  PadBoundingBox bounding_box;
 };
 
 typedef struct _PadCanvasItemClass {
@@ -55,6 +64,8 @@ typedef struct _PadCanvasItemClass {
   void (*draw)(PadCanvasItem *self, cairo_t *cr);
 
   void (*add)(PadCanvasItem *self, PadCanvasItem *child);
+
+  void (*update_bounding_box)(PadCanvasItem *self);
 
   /*< private >*/
   gpointer padding[30];
@@ -68,6 +79,16 @@ PadCanvasItem *pad_canvas_item_new(PadCanvasItem *parent_item, ...);
 void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr);
 
 void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child);
+
+void pad_canvas_item_update_bounding_box(PadCanvasItem* self);
+
+gdouble pad_canvas_item_point_lower_bound(PadPoint *pt, gdouble line_width);
+
+gdouble pad_canvas_item_point_upper_bound(PadPoint *pt, gdouble line_width);
+
+gdouble pad_canvas_item_point_left_bound(PadPoint *pt, gdouble line_width);
+
+gdouble pad_canvas_item_point_right_bound(PadPoint *pt, gdouble line_width);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(PadCanvasItem, g_object_unref)
 

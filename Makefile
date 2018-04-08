@@ -1,6 +1,7 @@
 
 CC= clang
 COBJECTS= test-driver-canvas.o \
+	pad-point.o \
 	pad-canvas.o \
 	pad-canvas-item.o \
 	pad-canvas-item-group.o \
@@ -15,15 +16,19 @@ CFLAGS:= $(shell $(PKGCONFIG) --cflags $(PACKAGES))
 CFLAGS:= $(CFLAGS) -I/usr/include/gtk-3.0/gtk -I/usr/include/poppler/glib
 CLIBS:= $(shell $(PKGCONFIG) --libs $(PACKAGES)) -lpoppler-glib
 
-.PHONY: all clean
+.PHONY: all clean clean-obj
 
 all: test_driver_canvas pad_canvas pad_canvas_debug pad_coordinate_system prog
 
 prog: $(COBJECTS)
 	$(CC) $(COBJECTS) $(CLIBS)
+	$(RM) *.o *.so *.orig *~ core* *.hh.gch *.h.gch
 
 test_driver_canvas: test-driver-canvas.c
 	$(CC) test-driver-canvas.c -c $(CFLAGS)
+
+pad_point: pad-point.c pad-point.h
+	$(CC) pad-point.c -c $(CFLAGS)
 
 pad_canvas: pad-canvas.c pad-canvas.h
 	$(CC) pad-canvas.c -c $(CFLAGS)

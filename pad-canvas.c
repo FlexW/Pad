@@ -11,10 +11,10 @@
  */
 
 #include "pad-canvas.h"
+#include "pad-bounding-box.h"
 #include "pad-canvas-debug.h"
 #include "pad-canvas-item-group.h"
 #include "pad-canvas-item-polyline.h"
-#include "pad-bounding-box.h"
 
 struct _PadCanvasPrivate {
   /* The world coordinate system. */
@@ -54,7 +54,8 @@ struct _PadCanvasPrivate {
   /* The canvas root item which holds all other items. */
   PadCanvasItem *root_item;
 
-  /* The area that is visible to the user in world space. */
+  /* The area that is visible to the user in world space. Update with:
+   * pad_canvas_update_view_bounding_box(). */
   PadBoundingBox view_bounding_box;
 };
 
@@ -467,15 +468,15 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   cairo_clip_extents(cr, &clip_bounds_x1, &clip_bounds_y1, &clip_bounds_x2,
                      &clip_bounds_y2);
 
-  //draw_area.x = priv->canvas_x_offset;
-  //draw_area.y = priv->canvas_y_offset;
-  //draw_area.width = priv->world_bound_width;
-  //draw_area.height = priv->world_bound_height;
+  // draw_area.x = priv->canvas_x_offset;
+  // draw_area.y = priv->canvas_y_offset;
+  // draw_area.width = priv->world_bound_width;
+  // draw_area.height = priv->world_bound_height;
 
   cairo_save(cr);
 
-  //cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
-  //cairo_paint(cr);
+  // cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
+  // cairo_paint(cr);
 
   cairo_translate(cr, priv->window_x, priv->window_y);
   cairo_translate(cr, priv->canvas_x_offset, priv->canvas_y_offset);
@@ -489,14 +490,14 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   cairo_close_path(cr);
   cairo_clip(cr);
 
-  //pad_canvas_debug_draw_background(widget, cr);
+  // pad_canvas_debug_draw_background(widget, cr);
 
   cairo_scale(cr, priv->world_scale, priv->world_scale);
   pad_canvas_item_draw(priv->root_item, cr);
 
-  //pad_canvas_debug_draw_world_center(widget, cr);
-  //pad_canvas_debug_draw_grid(widget, cr);
-  //pad_canvas_debug_draw_world_bounds(widget, cr);
+  // pad_canvas_debug_draw_world_center(widget, cr);
+  // pad_canvas_debug_draw_grid(widget, cr);
+  // pad_canvas_debug_draw_world_bounds(widget, cr);
 
   cairo_restore(cr);
 
@@ -546,12 +547,11 @@ static void pad_canvas_realize(GtkWidget *widget) {
   /* The actual window size is always at least as big as the widget's window.*/
   attributes.width = MAX((gint)width_pixels, allocation.width);
   attributes.height = MAX((gint)height_pixels, allocation.height);
-  attributes.event_mask = GDK_EXPOSURE_MASK | GDK_SCROLL_MASK |
-                          GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-                          GDK_POINTER_MOTION_MASK
-                          | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
-                          GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
-                          GDK_FOCUS_CHANGE_MASK | gtk_widget_get_events(widget);
+  attributes.event_mask =
+      GDK_EXPOSURE_MASK | GDK_SCROLL_MASK | GDK_BUTTON_PRESS_MASK |
+      GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK |
+      GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
+      GDK_FOCUS_CHANGE_MASK | gtk_widget_get_events(widget);
 
   priv->window_x = attributes.x;
   priv->window_y = attributes.y;

@@ -178,10 +178,6 @@ void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr) {
 void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child) {
   PadCanvasItemClass *klass;
 
-  if (self == NULL || child == NULL) {
-    return;
-  }
-
   g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
 
   klass = PAD_CANVAS_ITEM_GET_CLASS(self);
@@ -192,4 +188,63 @@ void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child) {
   }
 
   klass->add(self, child);
+}
+
+void pad_canvas_item_update_bounding_box(PadCanvasItem *self) {
+  PadCanvasItemClass *klass;
+
+  g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
+
+  klass = PAD_CANVAS_ITEM_GET_CLASS(self);
+  g_return_if_fail(klass->draw != NULL);
+
+  klass->update_bounding_box(self);
+}
+
+gdouble pad_canvas_item_point_left_bound(PadPoint *pt, gdouble line_width) {
+  gdouble x;
+
+  line_width = line_width / 2;
+
+  g_object_get(pt, "x", &x, NULL);
+
+  x -= line_width;
+
+  return x;
+}
+
+gdouble pad_canvas_item_point_right_bound(PadPoint *pt, gdouble line_width) {
+  gdouble x;
+
+  line_width = line_width / 2;
+
+  g_object_get(pt, "x", &x, NULL);
+
+  x += line_width;
+
+  return x;
+}
+
+gdouble pad_canvas_item_point_upper_bound(PadPoint *pt, gdouble line_width) {
+  gdouble y;
+
+  line_width = line_width / 2;
+
+  g_object_get(pt, "y", &y, NULL);
+
+  y += line_width;
+
+  return y;
+}
+
+gdouble pad_canvas_item_point_lower_bound(PadPoint *pt, gdouble line_width) {
+  gdouble y;
+
+  line_width = line_width / 2;
+
+  g_object_get(pt, "y", &y, NULL);
+
+  y -= line_width;
+
+  return y;
 }
