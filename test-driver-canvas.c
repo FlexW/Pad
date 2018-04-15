@@ -91,7 +91,9 @@ static void set_pdf_page() {
 
   if (doc == NULL && root_item != NULL) {
     gdouble width, height;
-    doc = open_pdf_file("/home/human/Documents/Rechnerarchitektur_Hellmann/[9783486720020 - Rechnerarchitektur] Teil 1 Grundlagen.pdf");
+    doc = open_pdf_file(
+        "/home/human/Documents/Rechnerarchitektur_Hellmann/[9783486720020 - "
+        "Rechnerarchitektur] Teil 1 Grundlagen.pdf");
     if (doc == NULL) {
       return;
     }
@@ -122,6 +124,12 @@ static void on_canvas_scale_changed(GtkGestureZoom *controller, gdouble scale,
 }
 static gboolean on_canvas_motion_notify_event(GtkWidget *widget,
                                               GdkEventMotion *event) {
+
+  gdouble x_win = event->x, y_win = event->y;
+  pad_canvas_window_to_world(PAD_CANVAS(canvas), &x_win, &y_win);
+  g_print("window x: %lf y: %lf world x: %lf y: %lf\n", event->x, event->y,
+          x_win, y_win);
+
   if (!button_pressed) {
     return FALSE;
   }

@@ -465,8 +465,8 @@ static void pad_canvas_set_view_bounding_box(PadCanvas *self) {
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
   PadPoint *pt1, *pt2;
 
-  window_x = 0;
-  window_y = 0;
+  window_x = priv->window_x;
+  window_y = priv->window_y;
   window_width = priv->window_alloc_width;
   window_height = priv->window_alloc_height;
 
@@ -782,8 +782,8 @@ void pad_canvas_window_to_world(PadCanvas *self, gdouble *x, gdouble *y) {
   gdouble world_cs_scale = priv->world_scale;
 
   // FIXME: Include adjustments of scrolled win.
-  *x -= org_x;
-  *y -= org_y;
+  *x -= org_x; //+ priv->window_x;
+  *y -= org_y; //+ priv->window_y;
   *x *= 1 / world_cs_scale;
   *y *= 1 / world_cs_scale;
 }
