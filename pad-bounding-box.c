@@ -66,7 +66,7 @@ static void pad_bounding_box_set_pt_2(PadBoundingBox *self, PadPoint *new_pt2) {
 static void pad_bounding_box_set_property(GObject *object, guint prop_id,
                                           const GValue *value,
                                           GParamSpec *pspec) {
-  g_return_if_fail(PAD_IS_POINT(object));
+  g_return_if_fail(PAD_IS_BOUNDING_BOX(object));
 
   switch (prop_id) {
 
@@ -90,7 +90,7 @@ static void pad_bounding_box_get_property(GObject *object, guint prop_id,
                                           GValue *value, GParamSpec *pspec) {
   PadBoundingBoxPrivate *priv;
 
-  g_return_if_fail(PAD_IS_POINT(object));
+  g_return_if_fail(PAD_IS_BOUNDING_BOX(object));
 
   priv = pad_bounding_box_get_instance_private(PAD_BOUNDING_BOX(object));
 
@@ -230,14 +230,14 @@ gboolean pad_bounding_box_is_intersect_point(PadBoundingBox *self,
 }
 
 /**
- * pad_bounding_box_increase:
- * @self The #PadBoundingBox you want to increase
+ * pad_bounding_box_expand_to_point:
+ * @self The #PadBoundingBox you want to expand
  * @pt Point that should intersect the increased #PadBoundingBox
  *
- * Increases the size of the #PadBoundingBox that pt will intersect  the
+ * Expands the size of the #PadBoundingBox that pt will intersect  the
  * #PadBoundingBox of self.
  */
-void pad_bounding_box_increase(PadBoundingBox *self, PadPoint *pt) {
+void pad_bounding_box_expand_to_point(PadBoundingBox *self, PadPoint *pt) {
   gdouble pt_x = 0, pt_y = 0;
   PadBoundingBoxPrivate *priv;
 
@@ -261,4 +261,19 @@ void pad_bounding_box_increase(PadBoundingBox *self, PadPoint *pt) {
   if (pad_point_is_y_lower(pt, priv->pt_2)) {
     g_object_set(priv->pt_2, "y", pt_y, NULL);
   }
+}
+
+void pad_bounding_box_expand_to_box(PadBoundingBox *self,
+                                    PadBoundingBox *bounding_box) {
+  PadBoundingBoxPrivate *priv;
+  PadPoint *pt1, *pt2;
+
+  g_return_if_fail(PAD_IS_BOUNDING_BOX(self));
+
+  priv = pad_bounding_box_get_instance_private(self);
+
+  g_object_get(bounding_box, "pt-1", &pt1, "pt-2", &pt2, NULL);
+
+  pad_bounding_box_expand_to_point(self, pt1);
+  pad_bounding_box_expand_to_point(self, pt2);
 }

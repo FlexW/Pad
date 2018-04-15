@@ -2,6 +2,7 @@
 CC= clang
 COBJECTS= test-driver-canvas.o \
 	pad-point.o \
+	pad-bounding-box.o \
 	pad-canvas.o \
 	pad-canvas-item.o \
 	pad-canvas-item-group.o \
@@ -29,6 +30,9 @@ test_driver_canvas: test-driver-canvas.c
 
 pad_point: pad-point.c pad-point.h
 	$(CC) pad-point.c -c $(CFLAGS)
+
+pad_bounding_box: pad-bounding_box.c pad-bounding-box.h
+	$(CC) pad-bounding-box.c -c $(CFLAGS)
 
 pad_canvas: pad-canvas.c pad-canvas.h
 	$(CC) pad-canvas.c -c $(CFLAGS)

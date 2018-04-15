@@ -32,7 +32,10 @@ gboolean pad_bounding_box_is_intersect_box(PadBoundingBox *self,
 gboolean pad_bounding_box_is_intersect_point(PadBoundingBox *self,
                                              PadPoint *pt);
 
-void pad_bounding_box_increase(PadBoundingBox *self, PadPoint *pt);
+void pad_bounding_box_expand_to_point(PadBoundingBox *self, PadPoint *pt);
+
+void pad_bounding_box_expand_to_box(PadBoundingBox *self,
+                                    PadBoundingBox *bounding_box);
 
 G_END_DECLS
 

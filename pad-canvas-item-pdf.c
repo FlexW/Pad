@@ -12,6 +12,7 @@
 
 #include "pad-canvas-item-pdf.h"
 #include "pad-canvas-item-group.h"
+#include "pad-point.h"
 
 typedef struct _PadCanvasItemPdfPrivate {
 
@@ -45,18 +46,21 @@ static void pad_canvas_item_pdf_class_init(PadCanvasItemPdfClass *klass) {
 
   canvas_item_class->draw = pad_canvas_item_pdf_draw;
   canvas_item_class->add = pad_canvas_item_pdf_add;
+  canvas_item_class->update_bounding_box = pad_canvas_item_pdf_update_bounding_box;
 }
 
 static void pad_canvas_item_pdf_init(PadCanvasItemPdf *self) {}
 
 PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
                                        PopplerPage *pdfpage, ...) {
+  g_print("pad_canvas_item_pdf_new\n");
   PadCanvasItemPdfPrivate *priv;
   va_list var_args;
   const char *first_property;
   PadCanvasItem *item =
       g_object_new(PAD_TYPE_CANVAS_ITEM_PDF, "parent-item", parent_item, NULL);
   PadCanvasItemPdf *item_pdf = PAD_CANVAS_ITEM_PDF(item);
+  PadPoint *pt_1, *pt_2;
 
   priv = pad_canvas_item_pdf_get_instance_private(item_pdf);
 
@@ -70,6 +74,13 @@ PadCanvasItem *pad_canvas_item_pdf_new(PadCanvasItem *parent_item,
     g_object_set_valist(G_OBJECT(item), first_property, var_args);
   }
   va_end(var_args);
+
+  pt_1 = pad_point_new(item->world_x, item->world_y);
+  pt_2 = pad_point_new(item->world_x + priv->image_data_width,
+                       item->world_y + priv->image_data_height);
+
+  pad_canvas_item_bounding_box_expand_to_point(item, pt_1);
+  pad_canvas_item_bounding_box_expand_to_point(item, pt_2);
 
   return item;
 }
@@ -109,3 +120,5 @@ void pad_canvas_item_pdf_draw(PadCanvasItem *self, cairo_t *cr) {
 void pad_canvas_item_pdf_add(PadCanvasItem *self, PadCanvasItem *child) {
   self->child = child;
 }
+
+void pad_canvas_item_pdf_update_bounding_box(PadCanvasItem *self) {}

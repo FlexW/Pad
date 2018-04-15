@@ -11,6 +11,13 @@
  */
 
 #include "pad-canvas-item.h"
+#include "pad-bounding-box.h"
+
+typedef struct _PadCanvasItemPrivate {
+
+  gboolean init_bounding_box;
+
+} PadCanvasItemPrivate;
 
 enum {
   PROP_WORLD_X = 1,
@@ -20,7 +27,7 @@ enum {
   N_PROPERTIES
 };
 
-G_DEFINE_TYPE(PadCanvasItem, pad_canvas_item, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE(PadCanvasItem, pad_canvas_item, G_TYPE_OBJECT);
 
 static void pad_canvas_item_finalize(GObject *gobject) {
   G_OBJECT_CLASS(pad_canvas_item_parent_class)->finalize(gobject);
@@ -31,6 +38,10 @@ static void pad_canvas_item_dispose(GObject *gobject) {
 
   if (item->child) {
     g_clear_object(&item->child);
+  }
+
+  if (item->bounding_box) {
+    g_clear_object(&item->bounding_box);
   }
 
   G_OBJECT_CLASS(pad_canvas_item_parent_class)->dispose(gobject);
@@ -117,7 +128,12 @@ static void pad_canvas_item_class_init(PadCanvasItemClass *klass) {
                           G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 }
 
-static void pad_canvas_item_init(PadCanvasItem *self) {}
+static void pad_canvas_item_init(PadCanvasItem *self) {
+  PadCanvasItemPrivate *priv = pad_canvas_item_get_instance_private(self);
+
+  self->bounding_box = pad_bounding_box_new(0, 0, 0, 0);
+  priv->init_bounding_box = TRUE;
+}
 
 /**
  * pad_canvas_item_new:
@@ -177,6 +193,10 @@ void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr) {
  */
 void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child) {
   PadCanvasItemClass *klass;
+
+  if (self == NULL) {
+    return;
+  }
 
   g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
 
@@ -247,4 +267,84 @@ gdouble pad_canvas_item_point_lower_bound(PadPoint *pt, gdouble line_width) {
   y -= line_width;
 
   return y;
+}
+
+/**
+ * pad_canvas_item_bounding_box_expand_to_point:
+ * @self The #PadCanvasItem you want the #PadBoundingBox to expand
+ * @pt The point you want to have in the #PadBoundingBox
+ *
+ * A wrapper around #pad_bounding_box_expand_to_point().
+ * Handles correct initialising of the #PadBoundingBox of the #PadCanvasItem.
+ * Use this always instead of direct access of
+ * #pad_bounding_box_expand_to_point().
+ */
+void pad_canvas_item_bounding_box_expand_to_point(PadCanvasItem *self,
+                                                  PadPoint *pt) {
+  PadCanvasItemPrivate *priv;
+
+  g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
+  priv = pad_canvas_item_get_instance_private(self);
+
+  if (priv->init_bounding_box) {
+    // get pt alter x y
+    PadPoint *pt_1, *pt_2;
+    gdouble new_x, new_y;
+
+    g_object_get(self->bounding_box, "pt-1", &pt_1, "pt-2", &pt_2, NULL);
+    g_object_get(pt, "x", &new_x, "y", &new_y, NULL);
+
+    g_object_set(pt_1, "x", new_x, "y", new_y, NULL);
+    g_object_set(pt_2, "x", new_x, "y", new_y, NULL);
+
+    priv->init_bounding_box = FALSE;
+
+    return;
+  }
+
+  pad_bounding_box_expand_to_point(self->bounding_box, pt);
+
+}
+
+/**
+ * pad_canvas_item_bounding_box_expand_to_box:
+ * @self The #PadCanvasItem you want the #PadBoundingBox to expand
+ * @bounding_box The bounding box you want to have in the #PadBoundingBox
+ *
+ * A wrapper around #pad_bounding_box_expand_to_box().
+ * Handles correct initialising of the #PadBoundingBox of the #PadCanvasItem.
+ * Use this always instead of direct access of
+ * #pad_bounding_box_expand_to_box().
+ */
+void pad_canvas_item_bounding_box_expand_to_box(PadCanvasItem *self,
+                                                PadBoundingBox *bounding_box) {
+
+  PadCanvasItemPrivate *priv;
+
+  g_return_if_fail(PAD_IS_CANVAS_ITEM(self));
+
+  priv = pad_canvas_item_get_instance_private(self);
+
+  if (priv->init_bounding_box) {
+    PadPoint *self_pt_1, *self_pt_2, *bounding_box_pt_1, *bounding_box_pt_2;
+    gdouble new_x, new_y;
+
+    g_object_get(self->bounding_box, "pt-1", &self_pt_1, "pt-2", &self_pt_2,
+                 NULL);
+    g_object_get(bounding_box, "pt-1", &bounding_box_pt_1, "pt-2",
+                 &bounding_box_pt_2, NULL);
+
+    g_object_get(bounding_box_pt_1, "x", &new_x, "y", &new_y, NULL);
+    g_object_set(self_pt_1, "x", new_x, "y", new_y, NULL);
+
+    g_object_get(bounding_box_pt_2, "x", &new_x, "y", &new_y, NULL);
+    g_object_set(self_pt_2, "x", new_x, "y", new_y, NULL);
+
+    priv->init_bounding_box = FALSE;
+
+    return;
+  }
+
+  pad_bounding_box_expand_to_box(self->bounding_box, bounding_box);
+
 }

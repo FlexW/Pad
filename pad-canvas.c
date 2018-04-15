@@ -11,7 +11,7 @@
  */
 
 #include "pad-canvas.h"
-#include "pad-bounding-box.h"
+//#include "pad-bounding-box.h"
 #include "pad-canvas-debug.h"
 #include "pad-canvas-item-group.h"
 #include "pad-canvas-item-polyline.h"
@@ -56,7 +56,7 @@ struct _PadCanvasPrivate {
 
   /* The area that is visible to the user in world space. Update with:
    * pad_canvas_update_view_bounding_box(). */
-  PadBoundingBox view_bounding_box;
+  //PadBoundingBox view_bounding_box;
 };
 
 typedef struct _PadCanvasPrivate PadCanvasPrivate;
@@ -431,6 +431,7 @@ static void pad_canvas_set_property(GObject *object, guint prop_id,
 
 static void pad_canvas_size_allocate(GtkWidget *widget,
                                      GtkAllocation *allocation) {
+  g_print("pad_canvas_size_allocate\n");
   g_return_if_fail(PAD_IS_CANVAS(widget));
 
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
@@ -459,6 +460,7 @@ static void pad_canvas_forall(GtkContainer *container,
                               gpointer callback_data) {}
 
 static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
+  g_print("pad_canvas_draw\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
   gdouble clip_bounds_x1, clip_bounds_x2, clip_bounds_y1, clip_bounds_y2;
 
@@ -505,6 +507,7 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
 }
 
 static void pad_canvas_realize(GtkWidget *widget) {
+  g_print("pad_canvas_realize\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
   GtkAllocation allocation;
   GdkWindow *window;

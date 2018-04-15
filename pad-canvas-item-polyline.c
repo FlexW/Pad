@@ -11,11 +11,11 @@
  */
 
 #include "pad-canvas-item-polyline.h"
+#include "pad-point.h"
 
 typedef struct _PolylinePoint {
 
-  gdouble x;
-  gdouble y;
+  PadPoint *pt;
   gdouble line_width;
 
 } PolylinePoint;
@@ -60,6 +60,7 @@ pad_canvas_item_polyline_class_init(PadCanvasItemPolylineClass *klass) {
 
   canvas_item_class->draw = pad_canvas_item_polyline_draw;
   canvas_item_class->add = pad_canvas_item_polyline_add;
+  canvas_item_class->update_bounding_box = pad_canvas_item_polyline_update_bounding_box;
 }
 
 static void pad_canvas_item_polyline_init(PadCanvasItemPolyline *self) {}
@@ -98,11 +99,12 @@ void pad_canvas_item_polyline_add_point(PadCanvasItemPolyline *self, gdouble x,
       pad_canvas_item_polyline_get_instance_private(self);
 
   point = g_slice_alloc(sizeof(PolylinePoint));
-  point->x = x;
-  point->y = y;
+  point->pt = pad_point_new(x, y);
   point->line_width = line_width;
 
   priv->points_list = g_list_append(priv->points_list, point);
+
+  pad_canvas_item_bounding_box_expand_to_point(PAD_CANVAS_ITEM(self), point->pt);
 }
 
 void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr) {
@@ -125,12 +127,16 @@ void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr) {
   GList *l = priv->points_list;
   l = l->next;
   for (; l != NULL; l = l->next) {
+    gdouble pt1_x, pt1_y, pt2_x, pt2_y;
     PolylinePoint *point1 = (PolylinePoint *)l->prev->data;
     PolylinePoint *point2 = (PolylinePoint *)l->data;
 
+    g_object_get(point1->pt, "x", &pt1_x, "y", &pt1_y, NULL);
+    g_object_get(point2->pt, "x", &pt2_x, "y", &pt2_y, NULL);
+
     cairo_set_line_width(cr, point1->line_width);
-    cairo_line_to(cr, point1->x, point1->y);
-    cairo_line_to(cr, point2->x, point2->y);
+    cairo_line_to(cr, pt1_x, pt1_y);
+    cairo_line_to(cr, pt2_x, pt2_y);
     cairo_stroke(cr);
   }
   cairo_restore(cr);
@@ -139,3 +145,5 @@ void pad_canvas_item_polyline_draw(PadCanvasItem *self, cairo_t *cr) {
 void pad_canvas_item_polyline_add(PadCanvasItem *self, PadCanvasItem *child) {
   self->child = child;
 }
+
+void pad_canvas_item_polyline_update_bounding_box(PadCanvasItem *self) {}

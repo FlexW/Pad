@@ -7,11 +7,13 @@
 
 #include <gtk.h>
 
-#include "pad-bounding-box.h"
+//#include "pad-bounding-box.h"
 
 G_BEGIN_DECLS
 
 typedef struct _PadCanvas PadCanvas;
+typedef struct _PadBoundingBox PadBoundingBox;
+typedef struct _PadPoint PadPoint;
 
 GType pad_canvas_item_bounds_get_type(void) G_GNUC_CONST;
 #define PAD_TYPE_CANVAS_ITEM_BOUNDS (pad_canvas_item_bounds_get_type())
@@ -52,7 +54,7 @@ struct _PadCanvasItem {
 
   /* The items bounding box in world space. Update with:
    * pad_canvas_item_update_bounding_box() */
-  PadBoundingBox bounding_box;
+  PadBoundingBox *bounding_box;
 };
 
 typedef struct _PadCanvasItemClass {
@@ -80,7 +82,7 @@ void pad_canvas_item_draw(PadCanvasItem *self, cairo_t *cr);
 
 void pad_canvas_item_add(PadCanvasItem *self, PadCanvasItem *child);
 
-void pad_canvas_item_update_bounding_box(PadCanvasItem* self);
+void pad_canvas_item_update_bounding_box(PadCanvasItem *self);
 
 gdouble pad_canvas_item_point_lower_bound(PadPoint *pt, gdouble line_width);
 
@@ -89,6 +91,16 @@ gdouble pad_canvas_item_point_upper_bound(PadPoint *pt, gdouble line_width);
 gdouble pad_canvas_item_point_left_bound(PadPoint *pt, gdouble line_width);
 
 gdouble pad_canvas_item_point_right_bound(PadPoint *pt, gdouble line_width);
+
+void pad_canvas_item_polyline_update_bounding_box(PadCanvasItem *self);
+
+void pad_canvas_item_bounding_box_expand_to_point(PadCanvasItem *self,
+                                                  PadPoint *pt);
+
+void pad_canvas_item_bounding_box_expand_to_box(PadCanvasItem *self,
+                                                PadBoundingBox *bounding_box);
+
+void pad_canvas_item_pdf_update_bounding_box(PadCanvasItem *self);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(PadCanvasItem, g_object_unref)
 

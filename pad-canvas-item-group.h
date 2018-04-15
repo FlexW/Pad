@@ -27,6 +27,8 @@ void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr);
 void pad_canvas_item_group_add(PadCanvasItem *self,
                                PadCanvasItem *item);
 
+void pad_canvas_item_group_update_bounding_box(PadCanvasItem *self);
+
 G_END_DECLS
 
 #endif /* __PAD_CANVAS_ITEM_GROUP__ */

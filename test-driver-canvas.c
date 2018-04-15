@@ -102,6 +102,7 @@ static void set_pdf_page() {
       poppler_page_get_size(page, &width, &height);
       item_pdf = pad_canvas_item_pdf_new(root_item, page, "world-y",
                                          (height + 10) * i, NULL);
+      g_print("set_pdf_page item: %p\n", item_pdf);
     }
     pad_canvas_set_world_bounds(PAD_CANVAS(canvas), width,
                                 (height + 10) * npages);

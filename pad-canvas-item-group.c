@@ -50,6 +50,7 @@ static void pad_canvas_item_group_class_init(PadCanvasItemGroupClass *klass) {
 
   canvas_item_class->draw = pad_canvas_item_group_draw;
   canvas_item_class->add = pad_canvas_item_group_add;
+  canvas_item_class->update_bounding_box = pad_canvas_item_group_update_bounding_box;
 }
 
 static void pad_canvas_item_group_init(PadCanvasItemGroup *self) {}
@@ -80,6 +81,7 @@ PadCanvasItem *pad_canvas_item_group_new(PadCanvasItem *parent_item, ...) {
 }
 
 void pad_canvas_item_group_add(PadCanvasItem *self, PadCanvasItem *item) {
+  g_print("pad_canvas_item_group_add\n");
   g_return_if_fail(PAD_IS_CANVAS_ITEM_GROUP(self));
 
   PadCanvasItemGroupPrivate *priv =
@@ -98,5 +100,21 @@ void pad_canvas_item_group_draw(PadCanvasItem *self, cairo_t *cr) {
     PadCanvasItem *item = PAD_CANVAS_ITEM(l->data);
 
     pad_canvas_item_draw(item, cr);
+  }
+}
+
+void pad_canvas_item_group_update_bounding_box(PadCanvasItem *self) {
+  // Update bounding box of every child, increase own bounding box.
+  PadCanvasItemGroupPrivate *priv;
+
+  g_return_if_fail(PAD_IS_CANVAS_ITEM_GROUP(self));
+
+  priv = pad_canvas_item_group_get_instance_private(PAD_CANVAS_ITEM_GROUP(self));
+
+  for (GList *l = priv->item_list; l != NULL; l = l->next) {
+    PadCanvasItem *item = PAD_CANVAS_ITEM(l->data);
+
+    pad_canvas_item_update_bounding_box(item);
+    pad_canvas_item_bounding_box_expand_to_box(self, item->bounding_box);
   }
 }
