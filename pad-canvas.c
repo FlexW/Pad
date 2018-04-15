@@ -11,7 +11,7 @@
  */
 
 #include "pad-canvas.h"
-//#include "pad-bounding-box.h"
+#include "pad-bounding-box.h"
 #include "pad-canvas-debug.h"
 #include "pad-canvas-item-group.h"
 #include "pad-canvas-item-polyline.h"
@@ -56,7 +56,7 @@ struct _PadCanvasPrivate {
 
   /* The area that is visible to the user in world space. Update with:
    * pad_canvas_update_view_bounding_box(). */
-  //PadBoundingBox view_bounding_box;
+  PadBoundingBox view_bounding_box;
 };
 
 typedef struct _PadCanvasPrivate PadCanvasPrivate;
@@ -459,6 +459,29 @@ static void pad_canvas_forall(GtkContainer *container,
                               gboolean include_internals, GtkCallback callback,
                               gpointer callback_data) {}
 
+/* Updates the view bounding box of the canvas. */
+static void pad_canvas_set_view_bounding_box(PadCanvas *self) {
+  gdouble window_x, window_y, window_width, window_height;
+  PadCanvasPrivate *priv = pad_canvas_get_instance_private(self);
+  PadPoint *pt1, *pt2;
+
+  window_x = 0;
+  window_y = 0;
+  window_width = priv->window_alloc_width;
+  window_height = priv->window_alloc_height;
+
+  pad_canvas_window_to_world(self, &window_x, &window_y);
+  pad_canvas_window_to_world(self, &window_width, &window_height);
+
+  //g_object_get(&priv->view_bounding_box, "pt-1", &pt1, "pt-2", &pt2, NULL);
+  //g_object_set(pt1, "x", window_x, "y", window_y, NULL);
+  //g_object_set(pt2, "x", window_width, "y", window_height, NULL);
+
+  g_print("view_bounding_box window_x: %lf window_y: %lf window_width: %lf "
+          "window_height: %lf\n",
+          window_x, window_y, window_width, window_height);
+}
+
 static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   g_print("pad_canvas_draw\n");
   PadCanvasPrivate *priv = pad_canvas_get_instance_private(PAD_CANVAS(widget));
@@ -469,6 +492,9 @@ static gboolean pad_canvas_draw(GtkWidget *widget, cairo_t *cr) {
   }
   cairo_clip_extents(cr, &clip_bounds_x1, &clip_bounds_y1, &clip_bounds_x2,
                      &clip_bounds_y2);
+
+  pad_canvas_item_update_bounding_box(priv->root_item);
+  pad_canvas_set_view_bounding_box(PAD_CANVAS(widget));
 
   // draw_area.x = priv->canvas_x_offset;
   // draw_area.y = priv->canvas_y_offset;
@@ -755,6 +781,7 @@ void pad_canvas_window_to_world(PadCanvas *self, gdouble *x, gdouble *y) {
   gdouble org_x = priv->canvas_x_offset, org_y = priv->canvas_y_offset;
   gdouble world_cs_scale = priv->world_scale;
 
+  // FIXME: Include adjustments of scrolled win.
   *x -= org_x;
   *y -= org_y;
   *x *= 1 / world_cs_scale;
