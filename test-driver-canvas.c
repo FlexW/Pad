@@ -92,8 +92,7 @@ static void set_pdf_page() {
   if (doc == NULL && root_item != NULL) {
     gdouble width, height;
     doc = open_pdf_file(
-        "/home/human/Documents/Rechnerarchitektur_Hellmann/[9783486720020 - "
-        "Rechnerarchitektur] Teil 1 Grundlagen.pdf");
+        "/home/felix/shared/uni/sem2/systemnahe_informatik/kap1.pdf");
     if (doc == NULL) {
       return;
     }
