@@ -11,11 +11,11 @@ COBJECTS= test-driver-canvas.o \
 	pad-canvas-debug.o \
 	pad-coordinate-system.o
 
-PACKAGES= gtk+-3.0 poppler
+PACKAGES= gtk+-3.0 poppler-glib
 PKGCONFIG= pkg-config
 CFLAGS:= $(shell $(PKGCONFIG) --cflags $(PACKAGES))
-CFLAGS:= $(CFLAGS) -I/usr/include/gtk-3.0/gtk -I/usr/include/poppler/glib
-CLIBS:= $(shell $(PKGCONFIG) --libs $(PACKAGES)) -lpoppler-glib
+CFLAGS:= $(CFLAGS)
+CLIBS:= $(shell $(PKGCONFIG) --libs $(PACKAGES))
 
 .PHONY: all clean clean-obj
 

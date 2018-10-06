@@ -5,7 +5,7 @@
 #ifndef __PAD_CANVAS_H__
 #define __PAD_CANVAS_H__
 
-#include <gtk.h>
+#include <gtk/gtk.h>
 
 #include "pad-canvas-item-group.h"
 #include "pad-canvas-item-polyline.h"

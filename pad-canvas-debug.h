@@ -5,7 +5,7 @@
 #ifndef __PAD_CANVAS_DEBUG_H__
 #define __PAD_CANVAS_DEBUG_H__
 
-#include <gtk.h>
+#include <gtk/gtk.h>
 
 void pad_canvas_debug_draw_world_bounds(GtkWidget *widget, cairo_t *cr);
 

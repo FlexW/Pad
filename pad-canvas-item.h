@@ -5,7 +5,7 @@
 #ifndef __PAD_CANVAS_ITEM_H__
 #define __PAD_CANVAS_ITEM_H__
 
-#include <gtk.h>
+#include <gtk/gtk.h>
 
 //#include "pad-bounding-box.h"
 
